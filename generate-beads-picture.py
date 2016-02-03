@@ -1,4 +1,5 @@
 from PIL import Image
+import inspect
 import sys
 
 R = 0
@@ -10,6 +11,17 @@ def sqr(a):
 
 def computeDistance(color_1, color_2):
     return sqr(color_1[R]-color_2[R]) + sqr(color_1[G] - color_2[G]) + sqr(color_1[B] - color_2[B])
+
+def transformColor(a_color):
+    if color2name[a_color] == 'purple':
+        return name2color['yellow']
+    #if color2name[a_color] == 'brown':
+    #    return name2color['orange']
+    #if color2name[a_color] == 'orange':
+    #    return name2color['red']
+    #if color2name[a_color] == 'yellow':
+    #    return name2color['white']
+    return a_color
 
 def findNearestColor(input_color, current_color):
     min_distance = 1000000
@@ -71,7 +83,8 @@ def blurImage(im, input_color, x_num, y_num):
                 new_g = color_total[G] / ((x_end-x_start) * (y_end - y_start))
                 new_b = color_total[B] / ((x_end-x_start) * (y_end - y_start))
 
-            output_pixel[x_n, y_n] = findNearestColor(input_color, (new_r, new_g, new_b))
+            nearest = findNearestColor(input_color, (new_r, new_g, new_b))
+            output_pixel[x_n, y_n] = transformColor(nearest)
 
         print 'done', x_n, y_n
 
@@ -86,11 +99,17 @@ def main():
     #remove_list = ['purple']
 
     input_color = []
+    global color2name
+    global name2color
+    color2name = {}
+    name2color = {}
     fin = open('input_color','r')
     for line in fin:
         items = line.strip().split()
         if items[3] not in remove_list:
             input_color.append((int(items[0]), int(items[1]), int(items[2])))
+            color2name[(int(items[0]), int(items[1]), int(items[2]))] = items[3]
+            name2color[items[3]] = (int(items[0]), int(items[1]), int(items[2]))
     fin.close()
 
     im = Image.open(sys.argv[1])
